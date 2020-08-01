@@ -16,14 +16,14 @@ const postSchema = new Schema({
         index: true,
         type: String
     },
-    category: {
+    category: [{
         type: Schema.Types.ObjectId,
         ref: 'Category'
-    },
-    author: {
+    }],
+    author: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
+    }],
     content: {
         type: String
     }

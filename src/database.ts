@@ -16,7 +16,7 @@ export class DatabaseManager {
         const environmentDevDatabaseConfig = {
             uri: `mongodb://lucas:123456a@ds145952.mlab.com:45952/api` 
         }
-        const environmentDatabase = typeEnv === "test" ? 'testing_test' :  'api'; 
+        
 
        try {
             const db = await connect(typeEnv === 'test' ? environmentTestDatabaseConfig.uri : environmentDevDatabaseConfig.uri, {

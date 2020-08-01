@@ -1,6 +1,6 @@
 import supertest, { Request, Test, SuperTest } from "supertest";
-import App from "../src/application";
-import { DatabaseManager } from "../src/database";
+import App from "../application";
+import { DatabaseManager } from "../database";
 import { Connection } from "mongoose";
 
 describe("testing root route", () => {
@@ -13,7 +13,7 @@ describe("testing root route", () => {
         password: '123'
     }
 
-    it('get /posts should be defined',async  () => {
+  it('get /posts should be defined',async  () => {
         const request: Request = agent.get("/posts");
         expect((await request).body).not.toBeNull();
     });

@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon src/index.ts",
-    "test": "jest --config --runInBand --detectOpenHandles NODE_ENV=test --watchAll"
+    "pre:test": "NODE_ENV=test",
+    "test": "jest --no-cache --runInBand --detectOpenHandles --watchAll"
   },
   "keywords": [],
   "author": "",

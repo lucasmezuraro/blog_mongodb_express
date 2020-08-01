@@ -1,6 +1,6 @@
 import supertest, { Request, Test, SuperTest } from "supertest";
-import App from "../src/application";
-import { DatabaseManager } from "../src/database";
+import App from "../application";
+import { DatabaseManager } from "../database";
 import { Connection } from "mongoose";
 
 describe("testing root route", () => {
@@ -42,7 +42,7 @@ describe("testing root route", () => {
         const requestUpdate: any = await agent.put(`/users/${requestCreate.body.users?._id}`)
         .send({user: userUpdate});
         expect(requestUpdate.body.user?.username).toContain(userUpdate.username)
-    });
+    }); 
 
     it('delete / should delete a user', async () => {
 

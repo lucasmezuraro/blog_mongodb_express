@@ -53,7 +53,7 @@ router.delete("/users/:id", async (req: Request, res: Response) => {
     const {id} = req.params;
     const {user} = req.body;
     try {
-        const removed: any = (await (await User.remove({_id: id})).deletedCount);
+        const removed: any = (await (await User.deleteOne({_id: id})).deletedCount); 
         return res.json({removed});
     }catch(err) {
         return res.json({error: err.message}).status(500);
@@ -62,14 +62,16 @@ router.delete("/users/:id", async (req: Request, res: Response) => {
 
 router.get('/posts', async (req: Request, res: Response) => {
    try { 
-        const posts = await Post.find({});
+        const posts = await Post.find().populate(
+            [{path: 'category', select: 'description'},
+             {path: 'author', select: 'username'}]);
         res.json({posts: posts});
    }catch(err) {
         return res.json({error: err.message}).status(500);
    }
 });
 
-router.post('/posts', async (req: Request, res: Response) => {
+router.post('/posts', async (req: Request, res: Response) => { 
     try { 
          const {post} = req.body;
          const user = await User.findOne({username: post.username});
@@ -89,14 +91,9 @@ router.post('/posts', async (req: Request, res: Response) => {
 router.get("/posts/about/:category", async (req: Request, res: Response) => {
     const {category} = req.params;
     try {
-
-        const id = new mongoose.Schema.Types.ObjectId(category);
-         const results = await Post.find().populate({
-             path: 'Post',
-             match: { _id: {$eq: id}}
-         });
-
-         return res.json({posts: results});
+        const results = await Post.find().where({"category": {_id: category}});
+        res.json({post: results});
+         
                  
     }catch(err) {
         return res.json({err: err.message});
@@ -106,14 +103,8 @@ router.get("/posts/about/:category", async (req: Request, res: Response) => {
 router.get("/posts/categories/:category/author/:author", async (req: Request, res: Response) => {
     const {category, author} = req.params;
     try {
+         const results = await Post.find().where({"category": {_id: category}, "author": {_id: author}});
 
-        const idCategory = new mongoose.Schema.Types.ObjectId(category);
-        const idAuthor = new mongoose.Schema.Types.ObjectId(author);
-         const results = await Post.aggregate([
-             {
-                 $match: {'author._id': idAuthor}
-             }
-         ]);
 
          return res.json({posts: results});
                  
