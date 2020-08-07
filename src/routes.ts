@@ -1,128 +1,112 @@
 import express, { Router, Request, Response } from 'express';
 import { DatabaseManager } from './database';
-import {User, UserType} from '../src/models/User.entity';
-import { Post } from './models/Post.entity';
-import { Category } from './models/Category.entity';
-import * as mongoose from 'mongoose';
+import userController, { UserController } from './controllers/user.controller';
+import postController from './controllers/post.controller';
+import categoryController from './controllers/category.controller';
+
+import {KafkaClient, Producer, Consumer} from 'kafka-node';
+const bp = require('body-parser');
+const config = require('../src/config-kafka');
 
 const db = new DatabaseManager().getConnection();
 
 const router: Router = express.Router();
 
-router.get("/users/", async (req: Request, res: Response) => {
-    
-   const users = await User.find();
-    res.json({users: users});
+router.get("/users/", userController.index);
+router.get("/users/:id", userController.findOne);
+router.post("/users/", userController.create);
+router.put("/users/:id", userController.update);
+router.delete("/users/:id", userController.delete);
+
+router.get('/posts', postController.get);
+router.post('/posts', postController.create);
+router.get("/posts/about/:category", postController.getByCategory);
+router.get("/posts/categories/:category/author/:author", postController.getByCategoryAndAuthor);
+
+router.post("/categories", categoryController.index);
+
+router.get("/posts/count", async (req: Request, res: Response) => {
 });
 
-router.get("/users/:id", async (req: Request, res: Response) => {
-    const {id} = req.params;
+router.post("/producer", async (req: Request, res: Response) => {
+
+    const user = {
+      username: 'lucas',
+      email: 'lucas@gmail.com'
+    };
+
     try {
-    const user = await User.findOne({_id: id});
-     res.json({user: user});
-    }catch(err) {
-        return res.json({error: err.message}).status(500);
-    }
-   });
+        console.log(config);
+        const client = new KafkaClient(config.kafka_server);
+        const producer = new Producer(client);
+        const kafka_topic = 'mytopic';
+        let payloads = [
+          {
+            topic: kafka_topic,
+            messages: JSON.stringify(user)
+          }
+        ];
+      
+        producer.on('ready', async function() {
+          let push_status = producer.send(payloads, (err: any, data: any) => {
+            console.log('kafka is connected');
+            let type = 0;
+            if (err) {
+              console.log(err);
+              console.log('[kafka-producer -> '+kafka_topic+']: broker update failed');
+              type = 1;
+            } else {
+              type = 2;
+              console.log('[kafka-producer -> '+kafka_topic+']: broker update success');
+            }
 
-
-router.post("/users/", async (req: Request, res: Response) => {
-
-    const {user} = req.body; 
-    try {
-        const users: UserType = await (await User.create(user)).save();
-        return res.json({users: users});
-    }catch(err) {
-        return res.json({error: err.message}).status(500);
-    }    
+            return res.json({message: data});
+          });
+        });
+      
+        producer.on('error', function(err: any) {
+          console.log(err);
+          console.log('[kafka-producer -> '+kafka_topic+']: connection errored');
+          throw err;
+        });
+      }
+      catch(e) {
+        console.log(e);
+      }
 });
 
-router.put("/users/:id", async (req: Request, res: Response) => {
-    const {id} = req.params;
-    const {user} = req.body;
-  
+router.get("/consumer", async (req: Request, res: Response) => {
     try {
-        const mod: any = (await (await User.findByIdAndUpdate(id, user, {new: true}))?.save());
-        return res.json({user: mod});
-    }catch(err) {
-        return res.json({error: err.message}).status(500);
-    }
+        const client = new KafkaClient(config.kafka_server);
+        let consumer = new Consumer(
+          client,
+          [{ topic: config.kafka_topic, partition: 0 }],
+          {
+            autoCommit: true,
+            fetchMaxWaitMs: 1000,
+            fetchMaxBytes: 1024 * 1024,
+            encoding: 'utf8',
+            fromOffset: false
+          }
+        );
+        consumer.on('message', async function(message:any) {
+          console.log('here');
+          const mess = await JSON.parse(message.value);
+          console.log(
+            'kafka-> ',
+            mess
+          );
+
+          return res.json({mess});
+        })
+
+        consumer.on('error', function(err: any) {
+          console.log('error', err);
+        });
+      }
+      catch(e) {
+        console.log(e);
+      }
 });
-
-router.delete("/users/:id", async (req: Request, res: Response) => {
-    const {id} = req.params;
-    const {user} = req.body;
-    try {
-        const removed: any = (await (await User.deleteOne({_id: id})).deletedCount); 
-        return res.json({removed});
-    }catch(err) {
-        return res.json({error: err.message}).status(500);
-    }
-});
-
-router.get('/posts', async (req: Request, res: Response) => {
-   try { 
-        const posts = await Post.find().populate(
-            [{path: 'category', select: 'description'},
-             {path: 'author', select: 'username'}]);
-        res.json({posts: posts});
-   }catch(err) {
-        return res.json({error: err.message}).status(500);
-   }
-});
-
-router.post('/posts', async (req: Request, res: Response) => { 
-    try { 
-         const {post} = req.body;
-         const user = await User.findOne({username: post.username});
-         const category = await Category.findOne({description: post.category});
-         const posts = await (await Post.create({
-             title: post.title,
-             author: user?.id,
-             category: category?._id,
-             content: post.content
-         })).save();
-         res.json({posts: posts});
-    }catch(err) {
-         return res.json({error: err.message}).status(500);
-    }
- });
-
-router.get("/posts/about/:category", async (req: Request, res: Response) => {
-    const {category} = req.params;
-    try {
-        const results = await Post.find().where({"category": {_id: category}});
-        res.json({post: results});
-         
-                 
-    }catch(err) {
-        return res.json({err: err.message});
-    }    
-});
-
-router.get("/posts/categories/:category/author/:author", async (req: Request, res: Response) => {
-    const {category, author} = req.params;
-    try {
-         const results = await Post.find().where({"category": {_id: category}, "author": {_id: author}});
-
-
-         return res.json({posts: results});
-                 
-    }catch(err) {
-        return res.json({err: err.message});
-    }    
-});
-
-
-router.post("/categories", async (req: Request, res: Response) => {
-
-    const {description} = req.body;
-    try {
-        const category = await (await Category.create({description})).save()
-        return res.json({category: category});
-    }catch(err) {
-        return res.json({err: err.message}).status(500);
-    }
-})
 
 export default router;

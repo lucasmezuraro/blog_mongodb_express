@@ -1,0 +1,61 @@
+Arguments: 
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add @types/kafka-node
+
+PATH: 
+  C:\Program Files (x86)\Common Files\Oracle\Java\javapath;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Program Files\Git\cmd;C:\laragon\bin\php\php-7.2.19-Win32-VC15-x64;C:\ProgramData\ComposerSetup\bin;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\nodejs\;C:\Program Files (x86)\Yarn\bin\;C:\Program Files\dotnet\;C:\Program Files\Microsoft SQL Server\130\Tools\Binn\;C:\Program Files\Microsoft SQL Server\Client SDK\ODBC\170\Tools\Binn\;C:\Program Files\Docker\Docker\resources\bin;C:\ProgramData\DockerDesktop\version-bin;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Go\bin;C:\Users\luc\Downloads\google-cloud-sdk-293.0.0-windows-x86_64\google-cloud-sdk\bin;C:\Program Files (x86)\Google\Cloud SDK\google-cloud-sdk\bin;C:\Program Files\Kubernetes\Minikube;C:\terraform;C:\Program Files\Amazon\AWSCLIV2\;C:\kops;C:\Ruby26-x64\bin;C:\Users\luc\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\luc\AppData\Local\Programs\Python\Python37\;C:\Users\luc\AppData\Local\Microsoft\WindowsApps;C:\Users\luc\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\luc\AppData\Roaming\Composer\vendor\bin;C:\Users\luc\AppData\Roaming\npm;C:\Users\luc\AppData\Local\Yarn\bin;C:\Program Files\heroku\bin;C:\apache-maven-3.6.3\bin;C:\Program Files\JetBrains\IntelliJ IDEA Educational Edition 2020.1.1\bin;;C:\Users\luc\go\bin;C:\Users\luc\Downloads\google-cloud-sdk-293.0.0-windows-x86_64\google-cloud-sdk\bin;C:\terraform;C:\kops;
+
+Yarn version: 
+  1.17.3
+
+Node version: 
+  10.16.3
+
+Platform: 
+  win32 x64
+
+Trace: 
+  Error: EPERM: operation not permitted, unlink 'C:\Users\luc\Desktop\Trabalho\backend_projects\guilda_cloud_nodejs\testing_mongodb_express\node_modules\@istanbuljs\load-nyc-config\node_modules\resolve-from'
+
+npm manifest: 
+  {
+    "name": "nosql-service",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+      "start": "nodemon src/index.ts",
+      "pre:test": "NODE_ENV=test",
+      "test": "jest --no-cache --runInBand --detectOpenHandles --watchAll"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "body-parser": "^1.19.0",
+      "dotenv": "^8.2.0",
+      "express": "^4.17.1",
+      "jest": "^26.1.0",
+      "kafka-node": "^5.0.0",
+      "mongoose": "^5.9.26",
+      "supertest": "^4.0.2",
+      "typescript": "^3.9.7"
+    },
+    "devDependencies": {
+      "@types/body-parser": "^1.19.0",
+      "@types/dotenv": "^8.2.0",
+      "@types/express": "^4.17.7",
+      "@types/jest": "^26.0.7",
+      "@types/mongoose": "^5.7.34",
+      "@types/node": "^14.0.27",
+      "@types/supertest": "^2.0.10",
+      "nodemon": "^2.0.4",
+      "ts-jest": "^26.1.4",
+      "ts-node": "^8.10.2"
+    }
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
